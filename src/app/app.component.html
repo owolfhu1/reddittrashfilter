@@ -1,0 +1,6 @@
+<input #input>
+<button (click)="dataCenter.getPosts(input.value)">visit</button>
+<button (click)="dataCenter.sortReference()">sort reference ({{ dataCenter.referenceArray.length }})</button>
+<button (click)="dataCenter.navigateToNext()">navigate to next reference</button>
+
+<app-post></app-post>

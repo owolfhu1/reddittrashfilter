@@ -1,0 +1,9 @@
+<h1 *ngIf="dataCenter.post.data.title">
+  {{ dataCenter.post.data.title }}
+</h1>
+
+<div *ngFor="let reply of dataCenter.post.replies">
+
+  <app-reply *ngIf="reply.show" [data]="reply"></app-reply>
+
+</div>
