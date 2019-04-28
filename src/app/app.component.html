@@ -1,6 +1,15 @@
 <input #input>
-<button (click)="dataCenter.getPosts(input.value)">visit</button>
-<button (click)="dataCenter.sortReference()">sort reference ({{ dataCenter.referenceArray.length }})</button>
-<button (click)="dataCenter.navigateToNext()">navigate to next reference</button>
+<button
+  (click)="dataCenter.getPost(input.value);
+  input.value = ''">
+  visit
+</button>
+
+
+<p *ngIf="dataCenter.loadingString">{{ dataCenter.loadingString }}</p>
+<p *ngIf="!dataCenter.loadingString && dataCenter.post.replies.length > 0">
+  <button (click)="dataCenter.sortReference()">sort reference ({{ dataCenter.referenceArray.length }})</button>
+  <button (click)="dataCenter.navigateToNext()">navigate to next reference</button>
+</p>
 
 <app-post></app-post>
