@@ -4,12 +4,21 @@
   input.value = ''">
   visit
 </button>
-
-
+<p *ngIf="dataCenter.post.replies.length > 0">
+  {{ dataCenter.referenceArray.length }} total comments.
+  Looking at index {{ dataCenter.currentIndex }}
+</p>
 <p *ngIf="dataCenter.loadingString">{{ dataCenter.loadingString }}</p>
-<p *ngIf="!dataCenter.loadingString && dataCenter.post.replies.length > 0">
-  <button (click)="dataCenter.sortReference()">sort reference ({{ dataCenter.referenceArray.length }})</button>
-  <button (click)="dataCenter.navigateToNext()">navigate to next reference</button>
+<p *ngIf="!dataCenter.loadingString && dataCenter.referenceArray.length > 0">
+  <button  *ngIf="dataCenter.currentIndex > -1" (click)="dataCenter.reset()">reset</button>
+  <button (click)="dataCenter.navigateToNext()">view next</button>
+
+  <br>currently sorting by: {{ dataCenter.sortBy }}
+  <br>sort by:
+  <button (click)="dataCenter.sort('worst')" [disabled]="dataCenter.sortBy === 'worst'">Worst</button>
+  <button (click)="dataCenter.sort('best')" [disabled]="dataCenter.sortBy === 'best'">Best</button>
+  <button (click)="dataCenter.sort('replies')" [disabled]="dataCenter.sortBy === 'replies'">Replies</button>
+  <button (click)="dataCenter.sort('depth')" [disabled]="dataCenter.sortBy === 'depth'">Depth</button>
 </p>
 
 <app-post></app-post>

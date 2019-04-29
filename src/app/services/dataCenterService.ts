@@ -9,6 +9,7 @@ export class DataCenterService {
   loadingString;
   prevPostLength = 0;
   interval;
+  sortBy = 'none';
 
   constructor() {
     this.post = {
@@ -32,7 +33,8 @@ export class DataCenterService {
       const post = data[0].data.children[0].data;
       const replies = data[1].data.children;
 
-      this.currentIndex = 0;
+      this.sortBy = 'none';
+      this.currentIndex = -1;
       this.referenceArray = [];
       this.post.replies = [];
       this.post.open = false;
@@ -55,7 +57,7 @@ export class DataCenterService {
         this.interval = null;
         this.loadingString = '';
       }
-    }, 500);
+    }, 1000);
   }
 
   getComments(destination: Reply[], rawReplies: any[], parent: Reply = null) {
@@ -75,12 +77,12 @@ export class DataCenterService {
           },
         };
         destination.push(comment);
-        // if (!reply.data.score_hidden) {
+        // if (!reply.data.score_hidden)
           this.referenceArray.push({
             score: comment.data.score,
             path: comment.path,
+            replies: comment.replies.length,
           });
-        // }
         if (reply.data.replies) {
           this.getComments(comment.replies, reply.data.replies.data.children, comment);
         }
@@ -98,43 +100,18 @@ export class DataCenterService {
             },
           };
           destination.push(comment);
-          // if (!fetchedReply.data.score_hidden) {
+          // if (!fetchedReply.data.score_hidden)
             this.referenceArray.push({
               score: comment.data.score,
               path: comment.path,
+              replies: comment.replies.length,
             });
-          // }
           if (fetchedReply.data.replies) {
             this.getComments(comment.replies, fetchedReply.data.replies.data.children, comment);
           }
         });
       }
     });
-  }
-
-  navigateToNext() {
-    // clean up last thread
-    if (this.currentIndex >= 0) {
-      const path = this.referenceArray[this.currentIndex].path;
-      let reply: any = this.post;
-      path.forEach(index => {
-        reply.open = false;
-        reply = reply.replies[index];
-        reply.show = false;
-      });
-    }
-    this.currentIndex++;
-    if (this.referenceArray.length > this.currentIndex) {
-      const path = this.referenceArray[this.currentIndex].path;
-      let reply: any = this.post;
-      path.forEach(index => {
-        reply.open = true;
-        reply = reply.replies[index];
-        reply.show = true;
-      });
-    } else {
-      alert('Oops! Looks like you have viewed every last reply!');
-    }
   }
 
   async getAReply(id) {
@@ -148,13 +125,64 @@ export class DataCenterService {
     return comment[1].data.children[0];
   }
 
-  sortReference() {
-    this.referenceArray.sort((a, b) => {
-      const test = -83;
-      if (a.score === test || b.score === test ) {
-        console.log(a, b);
+  closeCurrent() {
+    if (this.currentIndex > -1) {
+      const path = this.referenceArray[this.currentIndex].path;
+      let reply: any = this.post;
+      path.forEach(index => {
+        reply.open = false;
+        reply = reply.replies[index];
+        reply.show = false;
+      });
+      if (this.sortBy === 'replies') {
+        reply.open = false;
+        reply.replies.forEach(r => r.show = false);
       }
-      return a.score - b.score;
-    });
+    }
+  }
+
+  navigateToNext() {
+    this.closeCurrent();
+    this.currentIndex++;
+    if (this.referenceArray.length > this.currentIndex) {
+      const path = this.referenceArray[this.currentIndex].path;
+      let reply: any = this.post;
+      path.forEach(index => {
+        reply.open = true;
+        reply = reply.replies[index];
+        reply.show = true;
+      });
+      if (this.sortBy === 'replies') {
+        reply.open = true;
+        reply.replies.forEach(r => r.show = true);
+      }
+    } else {
+      alert('Oops! Looks like you have viewed every last reply!');
+    }
+  }
+
+  sort(type) {
+    this.closeCurrent();
+    this.sortBy = type;
+    this.currentIndex = -1;
+    switch (type) {
+      case 'best':
+        this.referenceArray.sort((a, b) =>  b.score - a.score);
+        break;
+      case 'worst':
+        this.referenceArray.sort((a, b) =>  a.score - b.score);
+        break;
+      case 'replies':
+        this.referenceArray.sort((a, b) => b.replies - a.replies);
+        break;
+      case 'depth':
+        this.referenceArray.sort((a, b) => b.path.length - a.path.length);
+        break;
+    }
+  }
+
+  reset() {
+    this.closeCurrent();
+    this.currentIndex = -1;
   }
 }

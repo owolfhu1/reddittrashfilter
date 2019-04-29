@@ -24,4 +24,5 @@ export interface Reply {
 export interface ReplyReference {
   score: number;
   path: number[];
+  replies: number;
 }
